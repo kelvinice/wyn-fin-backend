@@ -1,0 +1,75 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String  @id @default(uuid())
+  email    String  @unique
+  password String
+  createdAt DateTime @default(now())
+  classifications Classification[]
+  sources  Source[]
+  periods  Period[]
+}
+
+model Classification {
+  id     String  @id @default(uuid())
+  name   String
+  color  String? // Nullable
+  user   User    @relation(fields: [userId], references: [id])
+  userId String
+  budget Budget[]
+  spending Spending[]
+}
+
+model Source {
+  id     String  @id @default(uuid())
+  name   String
+  user   User    @relation(fields: [userId], references: [id])
+  userId String
+}
+
+model Period {
+  id     String  @id @default(uuid())
+  year   Int
+  month  Int
+  user   User    @relation(fields: [userId], references: [id])
+  userId String
+  budgets Budget[]
+  spending Spending[]
+}
+
+model SpendingType {
+  id    String @id @default(uuid())
+  name  String
+}
+
+model Budget {
+  id              String  @id @default(uuid())
+  periodId        String
+  classificationId String
+  amount          Float
+  period          Period  @relation(fields: [periodId], references: [id])
+  classification  Classification @relation(fields: [classificationId], references: [id])
+}
+
+model Spending {
+  id              String  @id @default(uuid())
+  periodId        String
+  classificationId String
+  description     String
+  amount          Float
+  period          Period  @relation(fields: [periodId], references: [id])
+  classification  Classification @relation(fields: [classificationId], references: [id])
+}
