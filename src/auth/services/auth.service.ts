@@ -22,7 +22,7 @@ export class AuthService {
     return null;
   }
 
-  async validateUserById(userId: string): Promise<any> {
+  async validateUserById(userId: number): Promise<any> {
     const user = await this.userService.findById(userId);
     if (!user) return null;
     
@@ -31,7 +31,12 @@ export class AuthService {
   }
 
   async register(registerDto: RegisterDto): Promise<any> {
-    const { email, password } = registerDto;
+    const { email, password, passwordConfirm } = registerDto;
+
+    // Check if passwords match
+    if (password !== passwordConfirm) {
+      throw new BadRequestException('Passwords do not match');
+    }
 
     const existingUser = await this.userService.findByEmail(email);
     if (existingUser) {
@@ -39,8 +44,9 @@ export class AuthService {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    
     const user = await this.userService.create({
-      ...registerDto,
+      email,
       password: hashedPassword,
     });
 
