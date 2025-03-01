@@ -24,7 +24,7 @@ import { UsersModule } from './users/users.module';
     {
       provide: APP_FILTER,
       useClass: HttpExceptionFilter,
-    }
+    },
   ],
 })
-export class AppModule {}
+export class AppModule { }
