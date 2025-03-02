@@ -8,6 +8,7 @@ import { PrismaService } from './prisma/prisma.service';
 import { HttpExceptionFilter } from './common/exceptions/http-exception.filter';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
+import { PingModule } from './ping/ping.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { UsersModule } from './users/users.module';
     }),
     AuthModule,
     UsersModule,
+    PingModule,
   ],
   controllers: [AppController],
   providers: [

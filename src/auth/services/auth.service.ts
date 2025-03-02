@@ -55,10 +55,19 @@ export class AuthService {
     return result;
   }
 
-  async login(user: any): Promise<{ accessToken: string }> {
+  async login(user: any): Promise<{ token: string; user: any; expiresIn: number }> {
     const payload = { email: user.email, sub: user.id };
+    
+    // Default expiration time in seconds (1 hour)
+    const expiresIn = 3600;
+    
+    // Remove password from user object
+    const { password, ...userData } = user;
+    
     return {
-      accessToken: this.jwtService.sign(payload),
+      token: this.jwtService.sign(payload),
+      user: userData,
+      expiresIn: expiresIn,
     };
   }
 }

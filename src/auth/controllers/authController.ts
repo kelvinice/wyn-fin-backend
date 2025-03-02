@@ -1,10 +1,13 @@
-import { Controller, Post, Body, UseGuards, Req, Res, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Req, Res, HttpException, HttpStatus, Get } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
 import { RegisterDto } from '../dto/register.dto';
 import { LoginDto } from '../dto/login.dto';
 import { LocalAuthGuard } from '../guards/local-auth.guard';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { Request, Response } from 'express';
 import rateLimit from 'express-rate-limit';
+import { GetUser } from '../../common/decorators/get-user.decorator';
+import { User } from '@prisma/client';
 
 // Rate limiting for auth endpoints - 5 attempts per 15 minutes
 const authLimiter = rateLimit({
@@ -39,6 +42,7 @@ export class AuthController {
   @Post('login')
   async login(@Req() req: Request) {
     try {
+      // This will now return { accessToken, user, expiresIn }
       return this.authService.login(req.user);
     } catch (error) {
       throw new HttpException(
@@ -46,5 +50,13 @@ export class AuthController {
         HttpStatus.UNAUTHORIZED
       );
     }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  getProfile(@GetUser() user: User) {
+    // Remove the password field for security
+    const { password, ...result } = user;
+    return result;
   }
 }
